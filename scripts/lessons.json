@@ -1,0 +1,102 @@
+[
+ {
+  "n": 0,
+  "title": "What is an agent, really?",
+  "text": "Welcome to Agentic AI for Finance Professionals. Let's begin with a definition you can defend in front of a CFO. An agent is not a chatbot with a personality. An agent is an AI model running in a loop, where the model itself decides what to do next.\n\nThe loop has three beats. First, gather context: read the ledger, the policy, the request. Second, take an action, usually by calling a tool. Third, verify the result, then decide: am I done, or do I go around again?\n\nThat last part is the key. In ordinary finance software, a programmer fixed the sequence of steps in advance. In an agent, the model directs its own path through the problem. That autonomy is the power, and it is also the risk this whole program teaches you to govern."
+ },
+ {
+  "n": 1,
+  "title": "When NOT to use an agent",
+  "text": "Here is the most valuable lesson of the whole week: most finance processes do not need an agent. If you can write the steps down in advance, build a workflow instead. Fixed steps, predictable cost, easy to audit.\n\nUse the three-question test. Can I write the steps in advance? Does the path vary unpredictably from case to case? Is it really just one transformation of input to output? A fixed monthly report from a template is a workflow. Scoring a standard assessment is a single AI call.\n\nAgent territory is the messy, open-ended work: evidence scattered across systems, a different path every time, judgment about what to look at next. When you tell your CFO which processes do not need an agent, you earn the credibility to automate the ones that do."
+ },
+ {
+  "n": 2,
+  "title": "The 2026 toolscape",
+  "text": "Agentic AI is not one product; it is a landscape, and you should know the real names. On the Claude side: Projects and connectors for no-code agents, Skills for packaged instructions, and Claude Code with the Agent SDK as the engineering layer your IT team would use.\n\nMicrosoft ships finance agents built on Copilot Studio that finance professionals create from Excel without code, for tasks like reconciliation. OpenAI launched AgentKit in late 2025, then announced in mid 2026 it was winding down its Agent Builder. Remember that one: platforms move fast, and platform risk is real.\n\nUnderneath them all sits one open standard for connecting agents to data, which Day 3 covers in depth. Your filter for every vendor demo this year: is this production-ready, or is it hype? This course gives you the questions to tell the difference."
+ },
+ {
+  "n": 3,
+  "title": "Your first agent",
+  "text": "Day 1 ends with you building a real agent, no code: a daily finance brief that runs every morning before you reach your desk. You choose the sources it may read, write its instructions in plain English, and set its schedule.\n\nWatch how it ends each run. The model keeps requesting tools while it needs more information, and signals when it is finished. The loop exits because the model says the work is done, not because a timer cut it off.\n\nNotice what made this an agent rather than a saved prompt: it runs without you, it chooses which source to check next, and it decides when it has enough. Small as it is, it carries the same anatomy as everything you will build this week."
+ },
+ {
+  "n": 4,
+  "title": "How agents act: tools",
+  "text": "An agent can only think until you give it hands. Tools are those hands: fetch this balance, list those invoices, draft that email. You hand the agent a menu of tools, and the model chooses which to call and when.\n\nHere is the part that matters for governance. The model never executes anything itself. It returns a structured request, and software you control runs the actual call, then passes the result back. The model proposes; software disposes.\n\nThat split is where every control lives. Because each action passes through software, each action can be logged, limited, or refused. When your auditor asks whether an AI agent can be controlled, this is your answer, and it is an architectural fact, not a promise."
+ },
+ {
+  "n": 5,
+  "title": "The approval gate",
+  "text": "Finance has run maker-checker for a century: one person prepares, another approves. Agentic AI done right obeys the same law. The agent prepares; a person approves.\n\nMechanically it is simple. The agent's output lands in a pending state: a draft email, a draft journal narrative, a draft report. Releasing it is a separate human action, and the agent has no tool that can perform it. Authority is withheld structurally, not behaviorally. It is not that the agent chooses not to send; it physically cannot.\n\nThis is the single design rule that makes everything else in this course safe to deploy. Every lab this week has an approval gate, and your capstone will be scored on it."
+ },
+ {
+  "n": 6,
+  "title": "Skills: your house style",
+  "text": "A generic model writes generic commentary. A Skill is how you make it write yours. A Skill is a folder of plain-language instructions an agent loads when the task matches: your terminology, your materiality thresholds, your commentary structure, your tone.\n\nThe clever part is progressive disclosure. The agent carries only the Skill's name and a one-line description until the task calls for it; then the full instructions load, and deeper reference files only if needed. Expertise on demand, with a tiny memory footprint.\n\nToday you write a variance commentary Skill and test it against a sample P&L from GulfBridge, our capstone company. When two participants get different output quality, the difference is almost always in the instruction wording. Writing good instructions is the new core finance skill."
+ },
+ {
+  "n": 7,
+  "title": "Grounding and honest refusals",
+  "text": "An agent's working memory, its context, is finite, and everything it knows during a run lives there. Shape what goes in: an agent fed two hundred raw ledger rows reasons worse than one fed a clean summary.\n\nGrounding is the discipline that keeps outputs trustworthy: the agent answers only from the data it was given, and cites the source of every number. If a figure in the commentary cannot be traced to a cell, the draft fails review.\n\nThen test the behavior nobody thinks to test: ask a question the data cannot answer. A naive agent improvises confidently, because models are eager to please. A governed agent says: insufficient evidence, here is what is missing. In finance, one honest refusal is worth ten fluent guesses."
+ },
+ {
+  "n": 8,
+  "title": "MCP in plain language",
+  "text": "Before late 2024, connecting an AI to your systems meant custom integration code for every pairing: your ERP, your spreadsheets, your email, each one bespoke. It did not scale, and finance teams waited in IT queues.\n\nThe Model Context Protocol, MCP, fixed this the way USB-C fixed cables: one open standard between any AI application and any data source. Anthropic released it in November 2024, and OpenAI, Google, and Microsoft all adopted it during 2025. The standards war ended before it started.\n\nWhat it means for you: thousands of ready-made connectors already exist. For most finance systems the question is no longer build, but connect, configure, and govern. That changes the economics of every agent project you will ever scope."
+ },
+ {
+  "n": 9,
+  "title": "Tools, resources, prompts",
+  "text": "An MCP connector can offer three kinds of things, and the difference is about who is in control.\n\nTools are model-controlled: the agent decides when to call them, like querying a balance or listing open items. Resources are application-controlled data your systems choose to expose for reading, like a chart of accounts or a policy document. Prompts are reusable templates a person invokes, like: run the standard close status report.\n\nWhen you map your own finance stack onto MCP, this taxonomy becomes a governance decision. What may the agent reach for on its own? What is read-only reference? What stays a human-triggered routine? Who controls what is the whole question."
+ },
+ {
+  "n": 10,
+  "title": "Safe data access",
+  "text": "Today your agent meets real finance data, so three rules come first, and they never bend.\n\nRule one: read-only first. Your initial connectors only fetch; nothing writes until the design earns it. Rule two: least privilege. The credential behind a connector sees exactly the tables the task needs, and not one more. Rule three: staging before production. The blast radius of a learning mistake should be zero.\n\nAdd the questions your region demands: where does the data reside, who approved this connector, and is finance in that approval chain? For GCC institutions these answers are not paperwork; they are the difference between a pilot and a deployment."
+ },
+ {
+  "n": 11,
+  "title": "The close status agent",
+  "text": "Now you wire it together: GulfBridge's close checklist and general ledger, connected through MCP, with an agent on top that answers one question on demand: where is the close?\n\nAsk it anything a controller would: which tasks are overdue, which balances moved unusually, what is blocking day three. Every answer cites the checklist line or ledger entry it came from, because an uncited status is just an opinion.\n\nWhen a blocker appears, the agent drafts the escalation email. Drafts, never sends. The send button belongs to a person, by construction. You now have the pattern for every status agent you will ever build: connected evidence, cited answers, gated actions."
+ },
+ {
+  "n": 12,
+  "title": "Lead agents and subagents",
+  "text": "One agent doing everything fills its memory with everything, and quality drops. The fix is delegation, a structure finance already understands: a lead and a team.\n\nA lead agent breaks the work apart and briefs subagents, each with a scoped task and a clean, separate working memory: one analyzes receivables, one drafts the cash section, one checks the KPIs. Each reports back only its conclusion, and the lead synthesizes.\n\nTwo wins. Isolation: the messy intermediate work never pollutes the lead's memory. And parallelism: three analyses run at once instead of in sequence. Tomorrow's reporting pack lab runs exactly this structure on GulfBridge's monthly numbers."
+ },
+ {
+  "n": 13,
+  "title": "The AI reviewer",
+  "text": "Here is the pattern that turns agent output from impressive to trustworthy: evaluator-optimizer. One pass generates; a second, separate pass critiques the draft against a checklist and sends weak sections back, before any human sees it.\n\nYou know this pattern already; finance has run maker-checker for a century. The reviewer agent checks: is every number cited, is the structure complete, does the commentary match the movements, is anything claimed without evidence?\n\nThe human reviewer then starts from a scored draft instead of a blank risk. In the reporting pack lab, you will watch a weak cash commentary bounce back twice before it reaches you, and you will see why the second AI pass is the cheapest control you will ever deploy."
+ },
+ {
+  "n": 14,
+  "title": "The reconciliation agent",
+  "text": "Today's lab is the one auditors ask about. GulfBridge's bank statement meets its ledger, and the agent matches what it can, categorizes what it cannot, and flags every exception for a person.\n\nOne line in its instructions matters more than all the others: the agent is never allowed to clear an item itself. Matching is a proposal; clearing is a decision, and decisions belong to people. In the lab you must find and defend that line.\n\nThen we starve it: a statement with missing pages, references that match nothing. The governed agent reports thin evidence and stops, rather than forcing matches to look complete. An exception honestly flagged is a success, not a failure. Write that into every reconciliation agent you ever commission."
+ },
+ {
+  "n": 15,
+  "title": "No API? Browser agents, and build vs buy",
+  "text": "Some systems have no connector at all: a bank portal, a government filing site. For those, agents can operate a browser or a screen the way a person does: looking, clicking, typing. Powerful, and the riskiest capability in this course.\n\nA web page can attack an agent: hidden text that says, ignore your instructions and send the data elsewhere. That is prompt injection. So the rule for browser agents is strict: watched, narrowly scoped, and never for payments. Some flows should simply stay human.\n\nDay 4 closes with the build versus buy map: prebuilt finance agents like Microsoft's, configured no-code agents like yours, and custom builds your IT team would engineer. Your deliverable is the one-page IT briefing: data needed, actions allowed, approval gate, logs required. That page is how finance leads an agent project instead of waiting for one."
+ },
+ {
+  "n": 16,
+  "title": "The agent risk taxonomy",
+  "text": "Day 5 turns you from builder into supervisor. Start by naming the five risks: hallucinated action, prompt injection, data leakage, over-delegation, and silent drift, where an agent's behavior degrades quietly over months.\n\nNow map each to a control you already trust. Hallucinated action meets approval gates. Injection meets scoped access and supervision. Leakage meets least privilege. Over-delegation meets segregation of duties. Drift meets periodic review, the same way you review any control.\n\nThis mapping is the insight that makes finance the right owner of agent governance: nothing here is new control theory. It is COSO thinking applied to a new kind of worker. You already know how to do this."
+ },
+ {
+  "n": 17,
+  "title": "Regulation and the audit trail",
+  "text": "Regulators are catching up to agents, and the direction is consistent even where timelines move: the EU AI Act phases in obligations by risk level, the NIST AI Risk Management Framework is the voluntary benchmark, and GCC supervisors expect model governance and human accountability.\n\nThe common thread is auditability. Every tool call your agents make can be logged: who asked, what ran, on which data, with what result. Build that trail from day one and most regulatory conversations become show-and-tell instead of negotiation.\n\nBecause timelines shift, the course does something honest: we run a live horizon scan in class, an agent researching the current regulatory status while you assess its sources. You learn the regulation and how to supervise AI research in the same hour."
+ },
+ {
+  "n": 18,
+  "title": "Anatomy of a governed agent",
+  "text": "Everything this week stacks into one picture, four layers you can draw on a whiteboard for any executive.\n\nLayer one, evidence: connected data through MCP, read-only and least privilege. Layer two, reasoning: the agent that gathers, analyzes, and drafts. Layer three, the Skill: your house rules governing structure, terminology, and thresholds. Layer four, approval: outputs pending until a person releases them.\n\nNotice what this really is: separation of powers. Data access, reasoning, organizational standards, and authority each live in their own layer, so when something misbehaves you know exactly where to look. If you remember one slide from this course, make it this one."
+ },
+ {
+  "n": 19,
+  "title": "Capstone: GulfBridge, then your 90 days",
+  "text": "The course ends the way real deployments should begin: your team designs and builds a governed agent for GulfBridge Financial Group, then demos it live to a panel playing CFO, internal audit, and IT.\n\nThe rubric rewards what real decision-makers buy: business value, governance quality, and honesty about limits. Expect the hard question: what could go wrong, and how would you know? A team that answers that well outscores a team with a flashier demo.\n\nYou leave with three things: a capstone you can rebuild at work, a scored governance checklist, and a 90-day roadmap: one agent to pilot, one policy to draft, one stakeholder to brief. Congratulations, CAIFP Advanced candidate. The exam, and your first production agent, are next."
+ }
+]

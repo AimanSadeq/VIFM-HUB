@@ -1,0 +1,32 @@
+name: Generate narration
+on:
+  workflow_dispatch:
+    inputs:
+      voice_id:
+        description: "ElevenLabs voice ID"
+        required: false
+        default: "21m00Tcm4TlvDq8ikWAM"
+      force:
+        description: "Regenerate all (1 = yes)"
+        required: false
+        default: "0"
+permissions:
+  contents: write
+jobs:
+  narrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate MP3s
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          VOICE_ID: ${{ github.event.inputs.voice_id }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: python3 scripts/generate_narration.py
+      - name: Commit audio
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add audio/
+          git diff --cached --quiet || git commit -m "Add generated narration audio"
+          git push
