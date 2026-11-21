@@ -6,6 +6,10 @@ on:
         description: "ElevenLabs voice ID"
         required: false
         default: "21m00Tcm4TlvDq8ikWAM"
+      voice_name:
+        description: "Or a voice name from the account library (overrides voice_id)"
+        required: false
+        default: ""
       force:
         description: "Regenerate all (1 = yes)"
         required: false
@@ -21,6 +25,7 @@ jobs:
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           VOICE_ID: ${{ github.event.inputs.voice_id }}
+          VOICE_NAME: ${{ github.event.inputs.voice_name }}
           FORCE: ${{ github.event.inputs.force }}
         run: python3 scripts/generate_narration.py
       - name: Commit audio
