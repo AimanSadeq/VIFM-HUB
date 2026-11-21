@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agentic AI in 90 Seconds · VIFM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#010131; --navy:#1A3A6B; --accent:#5391D5; --light:#C4D9F2; --pale:#EAF1FC;
+  --card:#0A1542; --line:rgba(168,196,229,.18); --good:#7BD5A8; --bad:#E58A8A;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{background:#010131 !important}
+body{background:#010131 !important}
+#bg{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#010131 0%,#050b3a 100%)}
+body{
+  background:var(--ink); color:var(--pale);
+  font-family:'Inter',system-ui,sans-serif; font-size:16px; line-height:1.55;
+  overscroll-behavior:none;
+}
+#app{position:relative;z-index:1;background:transparent;max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* header */
+header{display:flex;align-items:center;gap:8px;padding:18px 20px 10px}
+.brand{margin-right:auto}
+.brand{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--light)}
+.brand b{color:var(--accent);font-weight:500}
+#tocBtn{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--light);padding:8px 12px;border:1px solid var(--line);border-radius:99px}
+
+/* progress dots */
+#dots{display:flex;gap:4px;padding:6px 20px 14px}
+#dots span{flex:1;height:3px;border-radius:2px;background:rgba(168,196,229,.15);transition:background .3s}
+#dots span.done{background:var(--accent)}
+#dots span.now{background:var(--pale)}
+
+/* card */
+main{flex:1;display:flex;flex-direction:column;padding:0 20px 16px;touch-action:pan-y}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+h1.lesson{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;line-height:1.18;color:#fff;margin-bottom:16px;letter-spacing:-.01em}
+.visual{background:linear-gradient(160deg,var(--card),#091038 70%);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:16px}
+.visual svg{display:block;width:100%;height:auto}
+.script{font-size:16px;color:#F2F7FE;margin-bottom:18px}
+.script p{margin-bottom:10px}
+.duration{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--light);letter-spacing:.1em;margin-bottom:14px}
+
+/* the agent-loop player — signature element */
+.player{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+#playBtn{position:relative;width:72px;height:72px;border-radius:50%;flex:none}
+#playBtn svg.ring{position:absolute;inset:0;transform:rotate(-90deg)}
+#playBtn .ring .track{stroke:rgba(168,196,229,.18)}
+#playBtn .ring .fill{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+#playBtn .glyph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.player .hint{font-size:13.5px;color:#D6E4F6}
+.loopLabels{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;color:var(--light);display:flex;gap:10px;margin-top:6px}
+.loopLabels i{font-style:normal;opacity:.45;transition:opacity .3s,color .3s}
+.loopLabels i.on{opacity:1;color:var(--accent)}
+
+/* quiz */
+.quiz{border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px;background:#0E1B4D}
+.quiz .q{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:16px;color:#fff;margin-bottom:14px}
+.opt{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:15px;color:#EAF1FC;transition:border-color .2s,background .2s}
+.opt:not([disabled]):hover{border-color:var(--accent)}
+.opt.correct{border-color:var(--good);background:rgba(123,213,168,.1)}
+.opt.wrong{border-color:var(--bad);background:rgba(229,138,138,.08)}
+.opt .key{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);padding-top:2px}
+.explain{display:none;font-size:14px;color:#D6E4F6;border-top:1px solid var(--line);padding-top:12px;margin-top:6px}
+.explain.show{display:block}
+
+/* nav */
+.cardNav{display:flex;gap:10px;margin-top:auto;padding-top:6px}
+.navBtn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:1px solid var(--line);border-radius:14px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;color:var(--pale)}
+.navBtn.primary{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+.navBtn[disabled]{opacity:.35;cursor:default}
+
+/* contents overlay */
+#toc{position:fixed;inset:0;background:#010131;z-index:30;display:none;overflow-y:auto;padding:20px}
+#toc.open{display:block}
+#toc .inner{max-width:520px;margin:0 auto}
+#toc h2{font-family:'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin:10px 0 4px}
+#toc .sub{font-size:13px;color:var(--light);margin-bottom:18px}
+.tocDay{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:var(--accent);margin:16px 0 8px;text-transform:uppercase}
+.tocItem{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:6px;font-size:14px;color:var(--pale)}
+.tocItem .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--light);width:20px;flex:none}
+.tocItem .tick{margin-left:auto;flex:none}
+#closeToc{position:sticky;top:0;float:right;padding:10px;border:1px solid var(--line);border-radius:99px;background:var(--ink)}
+
+
+#setup{position:fixed;inset:0;background:rgba(1,1,49,.97);z-index:40;display:none;overflow-y:auto;padding:20px}
+#setup.open{display:block}
+#setup .inner{max-width:520px;margin:0 auto}
+#setup h2{font-family:'Space Grotesk',sans-serif;font-size:21px;color:#fff;margin:10px 0 6px}
+#setup .sub2{font-size:13.5px;color:#D6E4F6;margin-bottom:16px}
+#setup label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;color:#C4D9F2;margin:14px 0 6px;text-transform:uppercase}
+#setup input,#setup select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0A1542;color:#EAF1FC;font-family:'Inter',sans-serif;font-size:15px}
+#setup .row{display:flex;gap:10px;margin-top:18px}
+#setup .row .navBtn{flex:1}
+#setup .fine{font-size:12.5px;color:#C4D9F2;margin-top:14px;line-height:1.5}
+#closeSetup{position:sticky;top:0;float:right;padding:10px;border:1px solid var(--line);border-radius:99px;background:var(--ink)}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0E1B4D;border:1px solid var(--accent);color:#EAF1FC;padding:10px 18px;border-radius:99px;font-size:13.5px;z-index:50;opacity:0;transition:opacity .3s;pointer-events:none;max-width:86vw;text-align:center}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+.pulse{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.dash{stroke-dasharray:6 6;animation:dashmove 1.6s linear infinite}
+@keyframes dashmove{to{stroke-dashoffset:-12}}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div>
+<div id="app">
+  <header>
+    <div class="brand"><b>VIFM</b> · AGENTIC AI IN 90 SECONDS</div>
+    <button id="tocBtn" aria-label="Open contents">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"/></svg>
+      LESSONS
+    </button>
+    <button id="setupBtn" aria-label="Voice settings">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></svg>
+      VOICE
+    </button>
+  </header>
+  <div id="dots" aria-hidden="true"></div>
+  <main id="card" aria-live="polite"></main>
+</div>
+
+<div id="toc" role="dialog" aria-label="Lesson contents">
+  <div class="inner">
+    <button id="closeToc" aria-label="Close contents">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+    </button>
+    <h2>Agentic AI in 90 Seconds</h2>
+    <div class="sub">Twenty audio micro-lessons for the 5-day Agentic AI for Finance Professionals program (CAIFP Advanced). Tap any lesson to jump in.</div>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+
+<div id="setup" role="dialog" aria-label="Voice settings">
+  <div class="inner">
+    <button id="closeSetup" aria-label="Close voice settings">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+    </button>
+    <h2>Voice settings</h2>
+    <div class="sub2">Add your ElevenLabs API key for studio-quality narration. The key is stored only on this device and sent only to the ElevenLabs API; audio generation uses your ElevenLabs credits.</div>
+    <div id="ttsRow" style="display:none">
+      <label for="ttsSel">Claude voice (on claude.ai)</label>
+      <select id="ttsSel">
+        <option value="buttery">Buttery (default)</option>
+        <option value="airy">Airy</option>
+        <option value="glassy">Glassy</option>
+        <option value="rounded">Rounded</option>
+      </select>
+      <div class="row"><button class="navBtn" id="ttsPreviewBtn">Preview this voice</button></div>
+    </div>
+    <label for="elKeyInput">ElevenLabs API key (when opened as a file)</label>
+    <input id="elKeyInput" type="password" autocomplete="off" placeholder="Paste your API key">
+    <label for="voiceSel">Voice</label>
+    <select id="voiceSel"><option value="21m00Tcm4TlvDq8ikWAM">Rachel (default)</option></select>
+    <div class="row">
+      <button class="navBtn" id="loadVoicesBtn">Test key &amp; load voices</button>
+    </div>
+    <div class="row">
+      <button class="navBtn primary" id="saveVoiceBtn">Save</button>
+      <button class="navBtn" id="clearVoiceBtn">Use device voice</button>
+    </div>
+    <div class="fine">No key? Create one at elevenlabs.io (Profile, API keys). Without a key the app uses your phone's built-in voice. If your browser blocks the connection, the app falls back to the device voice automatically.</div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ---------- SVG visual builders (VIFM palette) ---------- */
+const C={ink:'#010131',navy:'#1A3A6B',acc:'#5391D5',lt:'#C4D9F2',pale:'#EAF1FC',good:'#7BD5A8'};
+const mono=`font-family:'IBM Plex Mono',monospace`;
+function box(x,y,w,h,label,fill,stroke){const tc=(fill===C.acc)?C.ink:'#FFFFFF';return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="${fill}" stroke="${stroke||C.acc}" stroke-width="1.2"/><text x="${x+w/2}" y="${y+h/2+4}" text-anchor="middle" fill="${tc}" font-size="12" font-weight="500" style="${mono}">${label}</text>`;}
+function arrow(x1,y1,x2,y2,dashed){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.acc}" stroke-width="1.4" ${dashed?'class="dash"':''} marker-end="url(#ah)"/>`;}
+const defs=`<defs><marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="${C.acc}"/></marker></defs>`;
+function svg(h,inner){return `<svg viewBox="0 0 320 ${h}" role="img">${defs}${inner}</svg>`;}
+
+const V={
+loop:()=>svg(170,`<circle cx="160" cy="85" r="58" fill="none" stroke="${C.acc}" stroke-width="1.6" class="dash"/>
+${box(110,12,100,26,'GATHER CONTEXT',C.navy)}${box(228,72,80,26,'ACT',C.navy)}${box(110,132,100,26,'VERIFY',C.navy)}${box(12,72,80,26,'REPEAT',C.ink,C.lt)}
+<circle cx="160" cy="85" r="5" fill="${C.acc}" class="pulse"/>`),
+split:()=>svg(160,`${box(15,12,135,28,'WORKFLOW',C.navy)}${box(35,62,95,22,'STEP 1',C.ink,C.lt)}${box(35,92,95,22,'STEP 2',C.ink,C.lt)}${box(35,122,95,22,'STEP 3',C.ink,C.lt)}
+${arrow(82,40,82,60)}${arrow(82,84,82,90)}${arrow(82,114,82,120)}
+${box(175,12,130,28,'AGENT',C.navy)}<circle cx="240" cy="105" r="38" fill="none" stroke="${C.acc}" stroke-width="1.5" class="dash"/><text x="240" y="109" text-anchor="middle" fill="${C.pale}" font-size="11" style="${mono}">MODEL DECIDES</text>${arrow(240,40,240,62)}`),
+tool:()=>svg(150,`${box(15,58,90,32,'CLAUDE',C.navy)}${box(215,20,90,30,'TOOL A',C.ink,C.lt)}${box(215,60,90,30,'TOOL B',C.acc)}${box(215,100,90,30,'TOOL C',C.ink,C.lt)}
+${arrow(105,70,213,75,true)}<text x="158" y="62" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">tool_use</text>
+${arrow(213,88,105,84,true)}<text x="158" y="104" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">tool_result</text>`),
+stop:()=>svg(140,`${box(15,20,80,28,'LOOP',C.navy)}${arrow(95,34,140,34)}${box(142,20,100,28,'tool_use?',C.ink,C.lt)}
+${arrow(192,48,192,76)}<text x="206" y="66" fill="${C.lt}" font-size="11" style="${mono}">yes</text>
+${box(142,78,100,28,'RUN TOOL',C.navy)}<path d="M142 92 H60 V48" fill="none" stroke="${C.acc}" stroke-width="1.4" marker-end="url(#ah)"/>
+${arrow(242,34,278,34)}${box(252,62,56,28,'DONE',C.acc)}<text x="262" y="30" fill="${C.lt}" font-size="11" style="${mono}">end_turn</text>`),
+ctx:()=>svg(150,`<rect x="40" y="16" width="240" height="118" rx="12" fill="none" stroke="${C.acc}" stroke-width="1.4"/><text x="160" y="10" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">CONTEXT WINDOW</text>
+${box(56,30,90,24,'SYSTEM',C.navy)}${box(56,62,90,24,'HISTORY',C.navy)}${box(56,94,90,24,'TOOL RESULTS',C.navy)}
+${box(172,30,92,24,'SKILL (LAZY)',C.ink,C.lt)}${box(172,62,92,24,'COMPACTION',C.ink,C.lt)}${box(172,94,92,24,'SUBAGENTS',C.ink,C.lt)}`),
+mcp:()=>svg(170,`<circle cx="160" cy="85" r="34" fill="${C.navy}" stroke="${C.acc}" stroke-width="1.5"/><text x="160" y="89" text-anchor="middle" fill="#fff" font-size="12" style="${mono}">MCP</text>
+${box(14,18,84,26,'SUPABASE',C.ink,C.lt)}${box(222,18,84,26,'CALENDAR',C.ink,C.lt)}${box(14,126,84,26,'FILES',C.ink,C.lt)}${box(222,126,84,26,'WEB',C.ink,C.lt)}
+${arrow(98,38,132,66,true)}${arrow(222,38,188,66,true)}${arrow(98,132,132,104,true)}${arrow(222,132,188,104,true)}
+<text x="160" y="160" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">ONE PROTOCOL, ANY SOURCE</text>`),
+prims:()=>svg(140,`${box(20,18,280,30,'TOOLS · model-controlled actions',C.navy)}${box(20,58,280,30,'RESOURCES · app-controlled data',C.ink,C.lt)}${box(20,98,280,30,'PROMPTS · reusable templates',C.ink,C.lt)}`),
+transport:()=>svg(140,`${box(18,20,120,30,'STDIO',C.navy)}<text x="78" y="66" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">local · same machine</text>
+${box(182,20,120,30,'HTTP',C.acc)}<text x="242" y="66" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">remote · streamable</text>
+${box(70,92,180,30,'MCP INSPECTOR · test both',C.ink,C.lt)}`),
+shield:()=>svg(160,`<path d="M160 16 L226 38 V84 c0 36 -30 56 -66 64 c-36 -8 -66 -28 -66 -64 V38 Z" fill="${C.navy}" stroke="${C.acc}" stroke-width="1.5"/>
+<text x="160" y="66" text-anchor="middle" fill="#fff" font-size="11.5" style="${mono}">READ-ONLY FIRST</text>
+<text x="160" y="86" text-anchor="middle" fill="${C.pale}" font-size="11.5" style="${mono}">LEAST PRIVILEGE</text>
+<text x="160" y="106" text-anchor="middle" fill="${C.pale}" font-size="11.5" style="${mono}">STAGING, NOT PROD</text>`),
+computer:()=>svg(160,`<rect x="60" y="18" width="200" height="100" rx="10" fill="${C.navy}" stroke="${C.acc}" stroke-width="1.4"/><rect x="130" y="122" width="60" height="8" rx="3" fill="${C.acc}"/>
+${box(76,32,80,24,'FILES',C.ink,C.lt)}${box(164,32,80,24,'BASH',C.ink,C.lt)}${box(76,64,80,24,'SEARCH',C.ink,C.lt)}${box(164,64,80,24,'MCP',C.ink,C.lt)}
+<text x="160" y="150" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">GIVE THE AGENT A COMPUTER</text>`),
+sdk:()=>svg(140,`${box(18,20,130,30,'query()',C.navy)}<text x="83" y="66" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">one-shot run</text>
+${box(172,20,130,30,'SDK CLIENT',C.acc)}<text x="237" y="66" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">session · custom tools</text>
+${box(60,92,200,30,'IN-PROCESS MCP · plain functions',C.ink,C.lt)}`),
+hooks:()=>svg(150,`${box(20,58,84,30,'AGENT',C.navy)}${arrow(104,73,150,73)}${box(152,58,76,30,'TOOL',C.ink,C.lt)}${arrow(228,73,272,73)}
+<rect x="118" y="14" width="86" height="26" rx="9" fill="${C.acc}"/><text x="161" y="31" text-anchor="middle" fill="${C.ink}" font-size="11" style="${mono}">PRE HOOK</text>
+<rect x="118" y="108" width="86" height="26" rx="9" fill="${C.acc}"/><text x="161" y="125" text-anchor="middle" fill="${C.ink}" font-size="11" style="${mono}">POST HOOK</text>
+${arrow(161,40,161,56,true)}${arrow(161,106,161,90,true)}`),
+skills:()=>svg(150,`${box(20,20,120,28,'SKILL.md',C.acc)}${box(20,58,120,24,'reference.md',C.ink,C.lt)}${box(20,90,120,24,'assets/',C.ink,C.lt)}
+${arrow(140,34,180,34)}${box(182,20,118,28,'LOADED FIRST',C.navy)}
+${arrow(140,70,180,70,true)}${box(182,58,118,24,'on demand',C.ink,C.lt)}
+<text x="160" y="138" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">PROGRESSIVE DISCLOSURE</text>`),
+sub:()=>svg(160,`${box(110,14,100,28,'ORCHESTRATOR',C.navy)}
+${box(20,84,80,28,'SUB 1',C.ink,C.lt)}${box(120,84,80,28,'SUB 2',C.ink,C.lt)}${box(220,84,80,28,'SUB 3',C.ink,C.lt)}
+${arrow(140,42,62,82,true)}${arrow(160,42,160,82,true)}${arrow(180,42,258,82,true)}
+${box(110,126,100,26,'SYNTHESIS',C.acc)}${arrow(60,112,128,128)}${arrow(160,112,160,124)}${arrow(260,112,192,128)}`),
+patterns:()=>svg(140,`${box(16,18,90,26,'ROUTING',C.navy)}${box(116,18,90,26,'PARALLEL',C.navy)}${box(216,18,90,26,'CHAINING',C.navy)}
+${box(50,58,100,26,'ORCH-WORKERS',C.ink,C.lt)}${box(168,58,120,26,'EVAL-OPTIMIZER',C.acc)}
+<text x="160" y="116" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">PATTERNS BEFORE FRAMEWORKS</text>`),
+guard:()=>svg(150,`${box(18,22,110,30,'THIN EVIDENCE',C.ink,C.lt)}${arrow(128,37,164,37)}${box(166,22,136,30,'AGENT',C.navy)}
+${arrow(234,52,234,84,true)}${box(120,86,200,30,'"FLAG FOR HUMAN"',C.acc)}
+<text x="160" y="138" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">A SAFE NO BEATS A CONFIDENT GUESS</text>`),
+hitl:()=>svg(150,`${box(14,22,86,30,'AGENT DRAFT',C.navy)}${arrow(100,37,134,37)}${box(136,22,96,30,'PENDING',C.ink,C.lt)}${arrow(232,37,266,37)}
+<circle cx="184" cy="92" r="22" fill="${C.acc}"/><path d="M176 92 l6 6 l11 -12" stroke="${C.ink}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+${box(244,76,62,30,'LIVE',C.navy)}${arrow(206,92,242,92)}
+<text x="120" y="132" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">A PERSON ALWAYS DECIDES</text>`),
+layers:()=>svg(170,`${box(40,14,240,28,'4 · APPROVAL · human gate',C.acc)}${box(40,52,240,28,'3 · SKILL · house rules',C.navy)}${box(40,90,240,28,'2 · REASONING · the agent',C.navy)}${box(40,128,240,28,'1 · EVIDENCE · connected data',C.ink,C.lt)}`),
+demo:()=>svg(150,`${box(16,22,88,28,'EVIDENCE',C.ink,C.lt)}${arrow(104,36,128,36)}${box(130,22,88,28,'REASONING',C.navy)}${arrow(218,36,242,36)}${box(244,22,62,28,'DRAFT',C.acc)}
+<text x="160" y="86" text-anchor="middle" fill="${C.pale}" font-size="11" style="${mono}">CLOSE STATUS ON DEMAND</text>
+<text x="160" y="112" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">CITED · GATED · LOGGED</text>`),
+teach:()=>svg(150,`${box(110,16,100,28,'CAPSTONE',C.acc)}
+${arrow(130,44,70,80,true)}${arrow(160,44,160,80,true)}${arrow(190,44,250,80,true)}
+${box(18,82,104,28,'CFO DEMO',C.navy)}${box(124,82,72,28,'CHECKLIST',C.navy)}${box(204,82,100,28,'90-DAY PLAN',C.navy)}
+<text x="160" y="136" text-anchor="middle" fill="${C.lt}" font-size="11" style="${mono}">ONE BUILD, THREE TAKEAWAYS</text>`)
+};
+
+/* ---------- 20 lessons ---------- */
+const L=[{"d": "Day 1 · Lesson 1", "t": "What is an agent, really?", "v": "loop", "s": ["Welcome to Agentic AI for Finance Professionals. Let's begin with a definition you can defend in front of a CFO. An agent is not a chatbot with a personality. An agent is an AI model running in a loop, where the model itself decides what to do next.", "The loop has three beats. First, gather context: read the ledger, the policy, the request. Second, take an action, usually by calling a tool. Third, verify the result, then decide: am I done, or do I go around again?", "That last part is the key. In ordinary finance software, a programmer fixed the sequence of steps in advance. In an agent, the model directs its own path through the problem. That autonomy is the power, and it is also the risk this whole program teaches you to govern."], "q": {"q": "What distinguishes an agent from ordinary software?", "o": ["It uses a larger AI model", "The model decides its own next step in a loop", "It always has a chat interface", "It runs faster than scripted code"], "a": 1, "e": "Agents direct their own process: gather context, act, verify, repeat, with the model choosing the path."}}, {"d": "Day 1 · Lesson 2", "t": "When NOT to use an agent", "v": "split", "s": ["Here is the most valuable lesson of the whole week: most finance processes do not need an agent. If you can write the steps down in advance, build a workflow instead. Fixed steps, predictable cost, easy to audit.", "Use the three-question test. Can I write the steps in advance? Does the path vary unpredictably from case to case? Is it really just one transformation of input to output? A fixed monthly report from a template is a workflow. Scoring a standard assessment is a single AI call.", "Agent territory is the messy, open-ended work: evidence scattered across systems, a different path every time, judgment about what to look at next. When you tell your CFO which processes do not need an agent, you earn the credibility to automate the ones that do."], "q": {"q": "A fixed monthly report built from the same template every time calls for:", "o": ["A multi-agent system", "An autonomous agent with web access", "A simple workflow with fixed steps", "A bigger model"], "a": 2, "e": "Predictable, well-defined steps call for a workflow. Agents earn their complexity only on open-ended tasks."}}, {"d": "Day 1 · Lesson 3", "t": "The 2026 toolscape", "v": "computer", "s": ["Agentic AI is not one product; it is a landscape, and you should know the real names. On the Claude side: Projects and connectors for no-code agents, Skills for packaged instructions, and Claude Code with the Agent SDK as the engineering layer your IT team would use.", "Microsoft ships finance agents built on Copilot Studio that finance professionals create from Excel without code, for tasks like reconciliation. OpenAI launched AgentKit in late 2025, then announced in mid 2026 it was winding down its Agent Builder. Remember that one: platforms move fast, and platform risk is real.", "Underneath them all sits one open standard for connecting agents to data, which Day 3 covers in depth. Your filter for every vendor demo this year: is this production-ready, or is it hype? This course gives you the questions to tell the difference."], "q": {"q": "What is the lasting lesson of OpenAI winding down its Agent Builder within a year of launch?", "o": ["Agents were a passing fad", "Platform risk is real, so verify the current toolscape before committing", "Visual builders are always better", "Only one vendor matters"], "a": 1, "e": "The agent platform landscape moves monthly. Re-verify what exists and what is supported before you build or buy."}}, {"d": "Day 1 · Lesson 4", "t": "Your first agent", "v": "stop", "s": ["Day 1 ends with you building a real agent, no code: a daily finance brief that runs every morning before you reach your desk. You choose the sources it may read, write its instructions in plain English, and set its schedule.", "Watch how it ends each run. The model keeps requesting tools while it needs more information, and signals when it is finished. The loop exits because the model says the work is done, not because a timer cut it off.", "Notice what made this an agent rather than a saved prompt: it runs without you, it chooses which source to check next, and it decides when it has enough. Small as it is, it carries the same anatomy as everything you will build this week."], "q": {"q": "How does a well-built agent run come to an end?", "o": ["A fixed number of steps always runs", "The model signals it is finished and the loop exits", "The context window fills up", "Someone closes the browser"], "a": 1, "e": "The model keeps requesting actions while work remains and signals completion when done; the loop exits on that signal."}}, {"d": "Day 2 · Lesson 1", "t": "How agents act: tools", "v": "tool", "s": ["An agent can only think until you give it hands. Tools are those hands: fetch this balance, list those invoices, draft that email. You hand the agent a menu of tools, and the model chooses which to call and when.", "Here is the part that matters for governance. The model never executes anything itself. It returns a structured request, and software you control runs the actual call, then passes the result back. The model proposes; software disposes.", "That split is where every control lives. Because each action passes through software, each action can be logged, limited, or refused. When your auditor asks whether an AI agent can be controlled, this is your answer, and it is an architectural fact, not a promise."], "q": {"q": "When an agent wants to act, what actually executes the action?", "o": ["The AI model itself", "Software under your control, which can log, limit, or refuse it", "The vendor's support team", "Nothing; agents only advise"], "a": 1, "e": "The model only requests actions. Controlled software executes them, which is exactly where logging and limits live."}}, {"d": "Day 2 · Lesson 2", "t": "The approval gate", "v": "hitl", "s": ["Finance has run maker-checker for a century: one person prepares, another approves. Agentic AI done right obeys the same law. The agent prepares; a person approves.", "Mechanically it is simple. The agent's output lands in a pending state: a draft email, a draft journal narrative, a draft report. Releasing it is a separate human action, and the agent has no tool that can perform it. Authority is withheld structurally, not behaviorally. It is not that the agent chooses not to send; it physically cannot.", "This is the single design rule that makes everything else in this course safe to deploy. Every lab this week has an approval gate, and your capstone will be scored on it."], "q": {"q": "How is sending authority best withheld from an agent?", "o": ["A polite instruction in the prompt", "Structurally: no tool exists that can release the output", "A daily quota", "Trusting the model's judgment"], "a": 1, "e": "Guardrails by construction beat guardrails by instruction. The release action simply is not in the agent's toolset."}}, {"d": "Day 2 · Lesson 3", "t": "Skills: your house style", "v": "skills", "s": ["A generic model writes generic commentary. A Skill is how you make it write yours. A Skill is a folder of plain-language instructions an agent loads when the task matches: your terminology, your materiality thresholds, your commentary structure, your tone.", "The clever part is progressive disclosure. The agent carries only the Skill's name and a one-line description until the task calls for it; then the full instructions load, and deeper reference files only if needed. Expertise on demand, with a tiny memory footprint.", "Today you write a variance commentary Skill and test it against a sample P&L from GulfBridge, our capstone company. When two participants get different output quality, the difference is almost always in the instruction wording. Writing good instructions is the new core finance skill."], "q": {"q": "How do Skills stay cheap in memory terms?", "o": ["They compress the model", "Progressive disclosure: full instructions load only when the task matches", "They run on a smaller model", "They replace the agent entirely"], "a": 1, "e": "Only the name and description load up front; details load on demand when the task calls for them."}}, {"d": "Day 2 · Lesson 4", "t": "Grounding and honest refusals", "v": "ctx", "s": ["An agent's working memory, its context, is finite, and everything it knows during a run lives there. Shape what goes in: an agent fed two hundred raw ledger rows reasons worse than one fed a clean summary.", "Grounding is the discipline that keeps outputs trustworthy: the agent answers only from the data it was given, and cites the source of every number. If a figure in the commentary cannot be traced to a cell, the draft fails review.", "Then test the behavior nobody thinks to test: ask a question the data cannot answer. A naive agent improvises confidently, because models are eager to please. A governed agent says: insufficient evidence, here is what is missing. In finance, one honest refusal is worth ten fluent guesses."], "q": {"q": "Asked something its data cannot support, a well-governed agent should:", "o": ["Give its best confident guess", "Say the evidence is insufficient and name what is missing", "Search the open web silently", "Answer from general knowledge"], "a": 1, "e": "Grounded agents answer only from provided data, cite sources, and refuse honestly when evidence runs out."}}, {"d": "Day 3 · Lesson 1", "t": "MCP in plain language", "v": "mcp", "s": ["Before late 2024, connecting an AI to your systems meant custom integration code for every pairing: your ERP, your spreadsheets, your email, each one bespoke. It did not scale, and finance teams waited in IT queues.", "The Model Context Protocol, MCP, fixed this the way USB-C fixed cables: one open standard between any AI application and any data source. Anthropic released it in November 2024, and OpenAI, Google, and Microsoft all adopted it during 2025. The standards war ended before it started.", "What it means for you: thousands of ready-made connectors already exist. For most finance systems the question is no longer build, but connect, configure, and govern. That changes the economics of every agent project you will ever scope."], "q": {"q": "What problem does MCP solve?", "o": ["Models being too slow", "Every AI-to-system connection needing custom code", "The cost of tokens", "Spreadsheet formula errors"], "a": 1, "e": "MCP standardizes the connection layer: one open protocol between any AI client and any tool or data source."}}, {"d": "Day 3 · Lesson 2", "t": "Tools, resources, prompts", "v": "prims", "s": ["An MCP connector can offer three kinds of things, and the difference is about who is in control.", "Tools are model-controlled: the agent decides when to call them, like querying a balance or listing open items. Resources are application-controlled data your systems choose to expose for reading, like a chart of accounts or a policy document. Prompts are reusable templates a person invokes, like: run the standard close status report.", "When you map your own finance stack onto MCP, this taxonomy becomes a governance decision. What may the agent reach for on its own? What is read-only reference? What stays a human-triggered routine? Who controls what is the whole question."], "q": {"q": "Which MCP element does the model itself decide to invoke?", "o": ["Resources", "Prompts", "Tools", "Templates"], "a": 2, "e": "Tools are model-controlled actions. Resources are app-controlled data; prompts are human-invoked templates."}}, {"d": "Day 3 · Lesson 3", "t": "Safe data access", "v": "shield", "s": ["Today your agent meets real finance data, so three rules come first, and they never bend.", "Rule one: read-only first. Your initial connectors only fetch; nothing writes until the design earns it. Rule two: least privilege. The credential behind a connector sees exactly the tables the task needs, and not one more. Rule three: staging before production. The blast radius of a learning mistake should be zero.", "Add the questions your region demands: where does the data reside, who approved this connector, and is finance in that approval chain? For GCC institutions these answers are not paperwork; they are the difference between a pilot and a deployment."], "q": {"q": "What should an agent's first data connectors be able to do?", "o": ["Read and write all tables", "Read-only queries, least privilege, staging environment", "Delete stale records", "Email customers directly"], "a": 1, "e": "Read-only first, least privilege, staging before production. Write access comes later and gated."}}, {"d": "Day 3 · Lesson 4", "t": "The close status agent", "v": "demo", "s": ["Now you wire it together: GulfBridge's close checklist and general ledger, connected through MCP, with an agent on top that answers one question on demand: where is the close?", "Ask it anything a controller would: which tasks are overdue, which balances moved unusually, what is blocking day three. Every answer cites the checklist line or ledger entry it came from, because an uncited status is just an opinion.", "When a blocker appears, the agent drafts the escalation email. Drafts, never sends. The send button belongs to a person, by construction. You now have the pattern for every status agent you will ever build: connected evidence, cited answers, gated actions."], "q": {"q": "Why does the close status agent only draft the escalation email?", "o": ["Email systems lack APIs", "Sending is a human action, withheld from the agent by design", "Drafts are cheaper", "It cannot write text well"], "a": 1, "e": "Cited answers, gated actions: the agent prepares, a person releases. The approval gate is the pattern."}}, {"d": "Day 4 · Lesson 1", "t": "Lead agents and subagents", "v": "sub", "s": ["One agent doing everything fills its memory with everything, and quality drops. The fix is delegation, a structure finance already understands: a lead and a team.", "A lead agent breaks the work apart and briefs subagents, each with a scoped task and a clean, separate working memory: one analyzes receivables, one drafts the cash section, one checks the KPIs. Each reports back only its conclusion, and the lead synthesizes.", "Two wins. Isolation: the messy intermediate work never pollutes the lead's memory. And parallelism: three analyses run at once instead of in sequence. Tomorrow's reporting pack lab runs exactly this structure on GulfBridge's monthly numbers."], "q": {"q": "What do subagents primarily provide?", "o": ["Lower token prices", "Isolation of working memory plus parallel execution", "Prettier formatting", "Faster internet access"], "a": 1, "e": "Each subagent works in its own clean context and returns only conclusions, so the lead stays focused and work runs in parallel."}}, {"d": "Day 4 · Lesson 2", "t": "The AI reviewer", "v": "patterns", "s": ["Here is the pattern that turns agent output from impressive to trustworthy: evaluator-optimizer. One pass generates; a second, separate pass critiques the draft against a checklist and sends weak sections back, before any human sees it.", "You know this pattern already; finance has run maker-checker for a century. The reviewer agent checks: is every number cited, is the structure complete, does the commentary match the movements, is anything claimed without evidence?", "The human reviewer then starts from a scored draft instead of a blank risk. In the reporting pack lab, you will watch a weak cash commentary bounce back twice before it reaches you, and you will see why the second AI pass is the cheapest control you will ever deploy."], "q": {"q": "Which pattern has one pass generate and another critique until quality passes?", "o": ["Routing", "Prompt chaining", "Evaluator-optimizer", "Parallelization"], "a": 2, "e": "Evaluator-optimizer is maker-checker for AI: generate, critique against a checklist, revise, then human review."}}, {"d": "Day 4 · Lesson 3", "t": "The reconciliation agent", "v": "guard", "s": ["Today's lab is the one auditors ask about. GulfBridge's bank statement meets its ledger, and the agent matches what it can, categorizes what it cannot, and flags every exception for a person.", "One line in its instructions matters more than all the others: the agent is never allowed to clear an item itself. Matching is a proposal; clearing is a decision, and decisions belong to people. In the lab you must find and defend that line.", "Then we starve it: a statement with missing pages, references that match nothing. The governed agent reports thin evidence and stops, rather than forcing matches to look complete. An exception honestly flagged is a success, not a failure. Write that into every reconciliation agent you ever commission."], "q": {"q": "What may the reconciliation agent never do?", "o": ["Propose matches", "Categorize exceptions", "Clear an item itself", "Summarize its run"], "a": 2, "e": "Matching is a proposal; clearing is a human decision. The agent flags, a person clears, and thin evidence stops the run."}}, {"d": "Day 4 · Lesson 4", "t": "No API? Browser agents, and build vs buy", "v": "computer", "s": ["Some systems have no connector at all: a bank portal, a government filing site. For those, agents can operate a browser or a screen the way a person does: looking, clicking, typing. Powerful, and the riskiest capability in this course.", "A web page can attack an agent: hidden text that says, ignore your instructions and send the data elsewhere. That is prompt injection. So the rule for browser agents is strict: watched, narrowly scoped, and never for payments. Some flows should simply stay human.", "Day 4 closes with the build versus buy map: prebuilt finance agents like Microsoft's, configured no-code agents like yours, and custom builds your IT team would engineer. Your deliverable is the one-page IT briefing: data needed, actions allowed, approval gate, logs required. That page is how finance leads an agent project instead of waiting for one."], "q": {"q": "What is the rule for agents that operate websites without APIs?", "o": ["Full autonomy saves time", "Watched, narrowly scoped, and never for payments", "Only use them at night", "Avoid logging to save space"], "a": 1, "e": "Pages can carry prompt injection attacks, so browser agents run supervised, tightly scoped, and never touch payments."}}, {"d": "Day 5 · Lesson 1", "t": "The agent risk taxonomy", "v": "shield", "s": ["Day 5 turns you from builder into supervisor. Start by naming the five risks: hallucinated action, prompt injection, data leakage, over-delegation, and silent drift, where an agent's behavior degrades quietly over months.", "Now map each to a control you already trust. Hallucinated action meets approval gates. Injection meets scoped access and supervision. Leakage meets least privilege. Over-delegation meets segregation of duties. Drift meets periodic review, the same way you review any control.", "This mapping is the insight that makes finance the right owner of agent governance: nothing here is new control theory. It is COSO thinking applied to a new kind of worker. You already know how to do this."], "q": {"q": "Agent governance mostly requires:", "o": ["Entirely new control theory", "Mapping familiar controls, like approval limits and SoD, onto agent risks", "Trusting vendor certifications", "Avoiding agents altogether"], "a": 1, "e": "Approval gates, least privilege, segregation of duties, and periodic review cover the agent risk taxonomy."}}, {"d": "Day 5 · Lesson 2", "t": "Regulation and the audit trail", "v": "hooks", "s": ["Regulators are catching up to agents, and the direction is consistent even where timelines move: the EU AI Act phases in obligations by risk level, the NIST AI Risk Management Framework is the voluntary benchmark, and GCC supervisors expect model governance and human accountability.", "The common thread is auditability. Every tool call your agents make can be logged: who asked, what ran, on which data, with what result. Build that trail from day one and most regulatory conversations become show-and-tell instead of negotiation.", "Because timelines shift, the course does something honest: we run a live horizon scan in class, an agent researching the current regulatory status while you assess its sources. You learn the regulation and how to supervise AI research in the same hour."], "q": {"q": "What is the common regulatory thread across frameworks?", "o": ["Banning agents in finance", "Auditability: logged actions and human accountability", "Mandatory open-source models", "One global license"], "a": 1, "e": "Log who asked, what ran, on which data, with what result. The audit trail answers most regulatory questions."}}, {"d": "Day 5 · Lesson 3", "t": "Anatomy of a governed agent", "v": "layers", "s": ["Everything this week stacks into one picture, four layers you can draw on a whiteboard for any executive.", "Layer one, evidence: connected data through MCP, read-only and least privilege. Layer two, reasoning: the agent that gathers, analyzes, and drafts. Layer three, the Skill: your house rules governing structure, terminology, and thresholds. Layer four, approval: outputs pending until a person releases them.", "Notice what this really is: separation of powers. Data access, reasoning, organizational standards, and authority each live in their own layer, so when something misbehaves you know exactly where to look. If you remember one slide from this course, make it this one."], "q": {"q": "In the four-layer anatomy, where do your organization's house rules live?", "o": ["The evidence layer", "The Skill layer", "The approval layer", "The database"], "a": 1, "e": "The Skill encodes house standards, separate from data access, reasoning, and release authority."}}, {"d": "Day 5 · Lesson 4", "t": "Capstone: GulfBridge, then your 90 days", "v": "teach", "s": ["The course ends the way real deployments should begin: your team designs and builds a governed agent for GulfBridge Financial Group, then demos it live to a panel playing CFO, internal audit, and IT.", "The rubric rewards what real decision-makers buy: business value, governance quality, and honesty about limits. Expect the hard question: what could go wrong, and how would you know? A team that answers that well outscores a team with a flashier demo.", "You leave with three things: a capstone you can rebuild at work, a scored governance checklist, and a 90-day roadmap: one agent to pilot, one policy to draft, one stakeholder to brief. Congratulations, CAIFP Advanced candidate. The exam, and your first production agent, are next."], "q": {"q": "What does the CFO panel rubric reward most?", "o": ["The flashiest demo", "Value, governance quality, and honesty about limits", "The most subagents", "The longest presentation"], "a": 1, "e": "Governed capability sells. Knowing what could go wrong, and how you would know, is what decision-makers buy."}}];
+
+/* ---------- state & persistence ---------- */
+let idx=0, progress={done:{},quiz:{}};
+const KEY='agentic90:v2';
+async function loadProgress(){
+  try{const r=await window.storage.get(KEY); if(r&&r.value){const p=JSON.parse(r.value); progress=p.progress||progress; idx=Math.min(p.idx||0,L.length-1);}}catch(e){}
+}
+async function saveProgress(){
+  try{await window.storage.set(KEY,JSON.stringify({progress,idx}));}catch(e){}
+}
+
+/* ---------- narration: ElevenLabs with device-voice fallback ---------- */
+const EL_URL='https://api.elevenlabs.io';
+let elKey='', elVoice='21m00Tcm4TlvDq8ikWAM', elVoiceName='Rachel';
+try{
+  elKey=localStorage.getItem('el:key')||'';
+  elVoice=localStorage.getItem('el:voice')||elVoice;
+  elVoiceName=localStorage.getItem('el:voiceName')||elVoiceName;
+}catch(e){}
+let tts=null, ttsVoice='buttery';
+try{ttsVoice=localStorage.getItem('tts:voice')||'buttery';}catch(e){}
+(async()=>{try{
+  if(window.claude&&window.claude.use){
+    tts=await claude.use('tts');
+    if(tts){
+      tts.onLine(({line})=>{if(curEngine==='tts'){updateRing(line/curLines);hlLoop(line/curLines);}});
+      tts.onPosition(({ms,line})=>{if(curEngine==='tts'&&curWords[line]){
+        const est=curWords[line]/2.6*1000;
+        const f=Math.min(1,(line+Math.min(1,ms/est))/curLines);
+        updateRing(f);hlLoop(f);}});
+      tts.onState(({state})=>{if(state==='idle'&&curEngine==='tts'&&speaking){
+        speaking=false;curEngine=null;setGlyph('play');clearLoopHl();}});
+      const row=document.getElementById('ttsRow'); if(row)row.style.display='block';
+      refreshHint();
+    }
+  }
+}catch(e){}})();
+let curEngine=null, curLines=1, curWords=[];
+const audioCache=new Map();
+let audioEl=null, speaking=false;
+const synth=window.speechSynthesis; let voice=null, charTotal=0, charsDone=0;
+function pickVoice(){
+  if(!synth)return;
+  const vs=synth.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith('en'));
+  const female=['samantha','google uk english female','google us english','zira','jenny','aria','victoria','karen','moira','tessa','susan','catherine','female'];
+  for(const name of female){const m=vs.find(v=>v.name.toLowerCase().includes(name)); if(m){voice=m;return;}}
+  voice=vs[0]||null;
+}
+if(synth){pickVoice(); synth.onvoiceschanged=pickVoice;}
+const RING_C=2*Math.PI*32;
+function updateRing(f){const el=document.querySelector('#playBtn .fill'); if(el)el.style.strokeDashoffset=RING_C*(1-Math.min(1,Math.max(0,f)));}
+function setGlyph(mode){const g=document.querySelector('#playBtn .glyph'); if(!g)return;
+  if(mode==='play')g.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg>';
+  else if(mode==='load')g.innerHTML='<svg width="26" height="26" viewBox="0 0 26 26" fill="#fff"><circle cx="5" cy="13" r="2.4" class="pulse"/><circle cx="13" cy="13" r="2.4" class="pulse" style="animation-delay:.3s"/><circle cx="21" cy="13" r="2.4" class="pulse" style="animation-delay:.6s"/></svg>';
+  else g.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" fill="#fff"><rect x="4" y="4" width="12" height="12" rx="2"/></svg>';}
+function hlLoop(f){const labels=document.querySelectorAll('.loopLabels i'); if(!labels.length)return;
+  const k=Math.min(2,Math.floor(f*3)); labels.forEach((l,i)=>l.classList.toggle('on',i===k));}
+function clearLoopHl(){document.querySelectorAll('.loopLabels i').forEach(l=>l.classList.remove('on'));}
+function refreshHint(){
+  const eh=document.getElementById('engineHint'); if(!eh)return;
+  eh.textContent = tts ? ('Narration: Claude voice · '+ttsVoice)
+    : elKey ? ('Narration: ElevenLabs · '+elVoiceName)
+    : 'Narration: device voice · set up under VOICE';
+}
+let toastTimer=null;
+function toast(msg){const t=document.getElementById('toast'); if(!t)return; t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3200);}
+function stopAudio(){
+  if(tts){try{tts.stop();}catch(e){}}
+  curEngine=null;
+  if(audioEl){try{audioEl.pause();}catch(e){} audioEl=null;}
+  if(synth)synth.cancel();
+  speaking=false; updateRing(0); setGlyph('play'); clearLoopHl();
+}
+async function playAudio(){
+  if(speaking){stopAudio();return;}
+  speaking=true; setGlyph('stop');
+  if(tts){
+    const ok=await ttsPlay();
+    if(ok||!speaking)return;
+  }
+  if(elKey){
+    const ok=await elPlay();
+    if(ok||!speaking)return;
+    toast('ElevenLabs unavailable; using device voice');
+  }
+  devicePlay();
+}
+async function ttsPlay(){
+  try{
+    const paras=L[idx].s;
+    curEngine='tts'; curLines=paras.length;
+    curWords=paras.map(p=>p.split(/\s+/).length);
+    setGlyph('stop');
+    await tts.speak(paras.map(p=>({text:p,voice:ttsVoice,language:'en'})));
+    if(curEngine==='tts'){speaking=false;curEngine=null;setGlyph('play');updateRing(1);clearLoopHl();}
+    return true;
+  }catch(e){
+    if(curEngine==='tts'){curEngine=null;}
+    if(e&&(e.code==='viewer_stopped'||e.code==='not_granted'||e.code==='busy')){
+      speaking=false;setGlyph('play');clearLoopHl();updateRing(0);
+      if(e.code==='not_granted')toast('Narration is turned off in your settings');
+      return true;
+    }
+    return false;
+  }
+}
+async function elPlay(){
+  const i=idx, key=i+':'+elVoice;
+  try{
+    let url=audioCache.get(key);
+    if(!url){
+      setGlyph('load');
+      const text=L[i].s.join('\n\n');
+      const r=await fetch(EL_URL+'/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
+        method:'POST',
+        headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
+        body:JSON.stringify({text:text,model_id:'eleven_multilingual_v2'})
+      });
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      url=URL.createObjectURL(await r.blob());
+      audioCache.set(key,url);
+    }
+    if(!speaking)return true;
+    setGlyph('stop');
+    audioEl=new Audio(url);
+    audioEl.ontimeupdate=()=>{if(audioEl&&audioEl.duration){const f=audioEl.currentTime/audioEl.duration;updateRing(f);hlLoop(f);}};
+    audioEl.onended=()=>{speaking=false;setGlyph('play');updateRing(1);clearLoopHl();audioEl=null;};
+    await audioEl.play();
+    return true;
+  }catch(e){
+    if(audioEl){try{audioEl.pause();}catch(_){} audioEl=null;}
+    return false;
+  }
+}
+function devicePlay(){
+  if(!synth){toast('No speech engine available on this device');speaking=false;setGlyph('play');return;}
+  const paras=L[idx].s; charTotal=paras.join(' ').length; charsDone=0; setGlyph('stop');
+  paras.forEach((p,i)=>{
+    const u=new SpeechSynthesisUtterance(p);
+    if(voice)u.voice=voice; u.rate=1.02; u.pitch=1.05; u.lang=(voice&&voice.lang)||'en-US';
+    u.onboundary=e=>{ if(e.charIndex!=null){ updateRing((charsDone+e.charIndex)/charTotal); hlLoop((charsDone+e.charIndex)/charTotal);} };
+    u.onend=()=>{ charsDone+=p.length+1; updateRing(charsDone/charTotal);
+      if(i===paras.length-1){ speaking=false; setGlyph('play'); updateRing(1); clearLoopHl(); }};
+    synth.speak(u);
+  });
+}
+
+/* ---------- render ---------- */
+const card=document.getElementById('card');
+function renderDots(){
+  const d=document.getElementById('dots'); d.innerHTML='';
+  L.forEach((_,i)=>{const s=document.createElement('span');
+    if(progress.done[i])s.classList.add('done'); if(i===idx)s.classList.add('now'); d.appendChild(s);});
+}
+function words(l){return l.s.join(' ').split(/\s+/).length;}
+function render(){
+  stopAudio();
+  const l=L[idx], qz=l.q, prior=progress.quiz[idx];
+  card.innerHTML=`
+    <div class="eyebrow">${l.d} · ${idx+1} of ${L.length}</div>
+    <h1 class="lesson">${l.t}</h1>
+    <div class="duration">≈ ${Math.round(words(l)/2.4/5)*5} SEC LISTEN · ${words(l)} WORDS</div>
+    <div class="player">
+      <button id="playBtn" aria-label="Play narration">
+        <svg class="ring" viewBox="0 0 72 72"><circle class="track" cx="36" cy="36" r="32" fill="none" stroke-width="3"/><circle class="fill" cx="36" cy="36" r="32" fill="none" stroke-width="3" stroke-dasharray="${RING_C}" stroke-dashoffset="${RING_C}"/></svg>
+        <span class="glyph"></span>
+      </button>
+      <div>
+        <div class="hint" id="engineHint"></div>
+        <div class="loopLabels"><i>GATHER</i><i>ACT</i><i>VERIFY</i></div>
+      </div>
+    </div>
+    <div class="visual">${V[l.v]()}</div>
+    <div class="script">${l.s.map(p=>`<p>${p}</p>`).join('')}</div>
+    <div class="quiz">
+      <div class="q">${qz.q}</div>
+      ${qz.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}
+      <div class="explain">${qz.e}</div>
+    </div>
+    <div class="cardNav">
+      <button class="navBtn" id="prevBtn" ${idx===0?'disabled':''}>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>Back
+      </button>
+      <button class="navBtn primary" id="nextBtn" ${idx===L.length-1?'disabled':''}>Next
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#010131" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>`;
+  setGlyph('play');
+  refreshHint();
+  document.getElementById('playBtn').onclick=playAudio;
+  document.getElementById('prevBtn').onclick=()=>go(idx-1);
+  document.getElementById('nextBtn').onclick=()=>go(idx+1);
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  if(prior!=null)showAnswer(prior,false);
+  renderDots(); window.scrollTo({top:0});
+}
+function answer(i){ progress.quiz[idx]=i; progress.done[idx]=true; saveProgress(); showAnswer(i,true); renderDots(); }
+function showAnswer(i,fresh){
+  const opts=card.querySelectorAll('.opt'), a=L[idx].q.a;
+  opts.forEach((b,j)=>{ b.disabled=true; if(j===a)b.classList.add('correct'); if(j===i&&i!==a)b.classList.add('wrong'); });
+  card.querySelector('.explain').classList.add('show');
+}
+function go(n){ if(n<0||n>=L.length)return; idx=n; saveProgress(); render(); }
+
+/* ---------- swipe ---------- */
+let tx=null;
+card.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+card.addEventListener('touchend',e=>{ if(tx==null)return; const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>60){ dx<0?go(idx+1):go(idx-1);} tx=null; },{passive:true});
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight')go(idx+1); if(e.key==='ArrowLeft')go(idx-1); });
+
+/* ---------- contents ---------- */
+const toc=document.getElementById('toc');
+document.getElementById('tocBtn').onclick=()=>{buildToc(); toc.classList.add('open');};
+document.getElementById('closeToc').onclick=()=>toc.classList.remove('open');
+function buildToc(){
+  const list=document.getElementById('tocList'); list.innerHTML=''; let lastDay='';
+  L.forEach((l,i)=>{
+    const day=l.d.split('·')[0].trim();
+    if(day!==lastDay){ lastDay=day; const h=document.createElement('div'); h.className='tocDay'; h.textContent=day; list.appendChild(h); }
+    const b=document.createElement('button'); b.className='tocItem';
+    b.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span>${l.t}</span>`+
+      (progress.done[i]?`<span class="tick"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="${C.good}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg></span>`:'');
+    b.onclick=()=>{toc.classList.remove('open'); go(i);};
+    list.appendChild(b);
+  });
+}
+
+/* ---------- voice settings ---------- */
+const setupEl=document.getElementById('setup');
+document.getElementById('setupBtn').onclick=()=>{
+  document.getElementById('elKeyInput').value=elKey;
+  const ts=document.getElementById('ttsSel'); if(ts)ts.value=ttsVoice;
+  setupEl.classList.add('open');
+};
+document.getElementById('ttsPreviewBtn').onclick=async()=>{
+  if(!tts){toast('Claude voices play when the app is opened on claude.ai');return;}
+  const v=document.getElementById('ttsSel').value;
+  try{
+    tts.stop();
+    await tts.speak([{text:'Welcome to Agentic AI for Finance Professionals. This is the '+v+' voice. An agent gathers context, takes an action, and verifies the result, then a person decides.',voice:v,language:'en'}]);
+  }catch(e){}
+};
+document.getElementById('ttsSel').onchange=e=>{
+  ttsVoice=e.target.value;
+  try{localStorage.setItem('tts:voice',ttsVoice);}catch(_){}
+  stopAudio(); refreshHint(); toast('Claude voice: '+ttsVoice);
+};
+document.getElementById('closeSetup').onclick=()=>setupEl.classList.remove('open');
+document.getElementById('loadVoicesBtn').onclick=async()=>{
+  const k=document.getElementById('elKeyInput').value.trim();
+  if(!k){toast('Paste your API key first');return;}
+  try{
+    const r=await fetch(EL_URL+'/v1/voices',{headers:{'xi-api-key':k}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const sel=document.getElementById('voiceSel'); sel.innerHTML='';
+    (data.voices||[]).forEach(v=>{
+      const o=document.createElement('option'); o.value=v.voice_id; o.textContent=v.name; 
+      if(v.voice_id===elVoice)o.selected=true;
+      sel.appendChild(o);
+    });
+    toast('Key works: '+(data.voices||[]).length+' voices loaded');
+  }catch(e){toast('Could not reach ElevenLabs: '+e.message);}
+};
+document.getElementById('saveVoiceBtn').onclick=()=>{
+  const k=document.getElementById('elKeyInput').value.trim();
+  const sel=document.getElementById('voiceSel');
+  if(!k){toast('Paste your API key, or choose Use device voice');return;}
+  elKey=k; elVoice=sel.value; elVoiceName=sel.options[sel.selectedIndex].textContent;
+  try{localStorage.setItem('el:key',elKey);localStorage.setItem('el:voice',elVoice);localStorage.setItem('el:voiceName',elVoiceName);}catch(e){}
+  audioCache.clear(); setupEl.classList.remove('open'); stopAudio(); render();
+  toast('ElevenLabs narration on: '+elVoiceName);
+};
+document.getElementById('clearVoiceBtn').onclick=()=>{
+  elKey='';
+  try{localStorage.removeItem('el:key');}catch(e){}
+  audioCache.clear(); setupEl.classList.remove('open'); stopAudio(); render();
+  toast('Using the device voice');
+};
+
+/* ---------- boot ---------- */
+(async()=>{ await loadProgress(); render(); })();
+</script>
+</body>
+</html>
